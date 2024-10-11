@@ -2,14 +2,14 @@ from fastapi import FastAPI, File, UploadFile, HTTPException,Depends,Form
 from typing import List, Optional
 import uuid
 import aiofiles
-from agent import model
+from agent import model, parser
 from prompt import road_walkability_prompt
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate
 from sqlalchemy.orm import sessionmaker,Session
 from database import Base, SessionLocal
 from models import RoadImages
-import sqlite3
-import httpx
+import json
 import base64
 import os
 
@@ -50,9 +50,11 @@ async def upload_image( file: UploadFile ,lat: str=Form(...), long: str=Form(...
     db.refresh(image)
 
     # Asking GPT to desribe the image
+    # system_message = SystemMessage(content=road_walkability_prompt)
     message = HumanMessage(
         content=[
-            {"type": "text", "text": "describe the road quality in this image"},
+            {"type": "text", "text": road_walkability_prompt},
+             {"type": "text", "text": "The image to be graded is given below"},
             {
                 "type": "image_url",
                 "image_url": {"url": f"data:image/jpeg;base64,{image_data}"},
@@ -60,6 +62,18 @@ async def upload_image( file: UploadFile ,lat: str=Form(...), long: str=Form(...
         ],
     )
     response = model.invoke([message])
+    try:
+        output = json.loads(response.content)
+        #### Save the output to the database
+        image.overall_score = output["overall_score"]
+        image.negative_components = output["negative_components"]
+        image.actionable_recommendations = output["actionable_recommendations"]
+        db.commit()
+        return {"filename": file.filename, "latitude": lat, "longitude": long, "response": output["overall_score"], "negative_components": output["negative_components"], "actionable_recommendations": output["actionable_recommendations"]}
+    except Exception as e:
+        print(response.content)
+        print(str(e))
+        raise HTTPException(status_code=500, detail="Parsing Failed")
     
-    return {"filename": file.filename, "latitude": lat, "longitude": long, "response": response.content}
+    
 

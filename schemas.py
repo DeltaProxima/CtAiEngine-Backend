@@ -17,7 +17,7 @@ class ComponentSchema(TypedDict):
 
 class RoadQualitySchema(BaseModel):
     overall_score: int = Field(description="The overall score of the road image. Should be an integer from 1 to 5.")
-    negetive_components: str = Field(description="A breakdown of any obstructions to walkability and their levels of severity")
+    negative_components: str = Field(description="A breakdown of any obstructions to walkability and their levels of severity")
     actionable_recommendations: str = Field(description="Suggest areas for improvement to enhance pedestrian mobility and safety")
     components: List[ComponentSchema] 
 

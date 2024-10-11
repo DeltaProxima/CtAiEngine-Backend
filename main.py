@@ -50,10 +50,9 @@ async def upload_image( file: UploadFile ,lat: str=Form(...), long: str=Form(...
     db.refresh(image)
 
     # Asking GPT to desribe the image
-    # system_message = SystemMessage(content=road_walkability_prompt)
-    message = HumanMessage(
+    system_message = SystemMessage(content=road_walkability_prompt)
+    human_message = HumanMessage(
         content=[
-            {"type": "text", "text": road_walkability_prompt},
              {"type": "text", "text": "The image to be graded is given below"},
             {
                 "type": "image_url",
@@ -61,7 +60,7 @@ async def upload_image( file: UploadFile ,lat: str=Form(...), long: str=Form(...
             },
         ],
     )
-    response = model.invoke([message])
+    response = model.invoke([system_message,human_message])
     try:
         output = json.loads(response.content)
         #### Save the output to the database

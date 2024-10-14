@@ -4,6 +4,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import DeclarativeMeta
 import json
 import os
+from  dotenv import load_dotenv
+
 
 SQLALCHEMY_DATABASE_URL = 'sqlite:///./roadImages.db'
 

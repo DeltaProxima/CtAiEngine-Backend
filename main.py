@@ -38,16 +38,16 @@ async def upload_image( file: UploadFile ,lat: str=Form(...), long: str=Form(...
     # extract content out of the file
     data = await file.read()
     image_data = base64.b64encode(data).decode("utf-8")    
-    # Save the uploaded file
-    async with aiofiles.open(file_location, 'wb') as out_file:
-        content = await file.read()
-        await out_file.write(content)
+    # # Save the uploaded file
+    # async with aiofiles.open(file_location, 'wb') as out_file:
+    #     content = await file.read()
+    #     await out_file.write(content)
 
     # Save the image to the database
-    image = RoadImages(road_image=file.filename, latitude=lat, longitude=long)
-    db.add(image)
-    db.commit()
-    db.refresh(image)
+    # image = RoadImages(road_image=file.filename, latitude=lat, longitude=long)
+    # db.add(image)
+    # db.commit()
+    # db.refresh(image)
 
     # Asking GPT to desribe the image
     system_message = SystemMessage(content=road_walkability_prompt)
@@ -64,10 +64,10 @@ async def upload_image( file: UploadFile ,lat: str=Form(...), long: str=Form(...
     try:
         output = json.loads(response.content)
         #### Save the output to the database
-        image.overall_score = output["overall_score"]
-        image.negative_components = output["negative_components"]
-        image.actionable_recommendations = output["actionable_recommendations"]
-        db.commit()
+        # image.overall_score = output["overall_score"]
+        # image.negative_components = output["negative_components"]
+        # image.actionable_recommendations = output["actionable_recommendations"]
+        # db.commit()
         return {"filename": file.filename, "latitude": lat, "longitude": long, "response": output["overall_score"], "negative_components": output["negative_components"], "actionable_recommendations": output["actionable_recommendations"]}
     except Exception as e:
         print(response.content)

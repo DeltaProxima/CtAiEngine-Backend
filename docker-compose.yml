@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  api:
+    build: .
+    container_name: city_ai_engine_fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/uploads
+      - ./roadImages.db:/roadImages.db
+    environment:
+      - SQLITE_DB=/roadImages.db
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

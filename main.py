@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException,Depends,Form
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 import uuid
 import aiofiles
@@ -16,6 +17,14 @@ import os
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or use ["*"] to allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_db():
     db = SessionLocal()
